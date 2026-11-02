@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Password is required"],
-      minlength: [6, "Password should contain more than 6 characters"],
+      minlength: [2, "Password should contain more than 2 characters"],
       select: false,
     },
   },
@@ -33,15 +33,16 @@ const userSchema = new mongoose.Schema(
   },
 );
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function() {
     
     if(!this.isModified('password')) {
 
-        return next();
+        return
     }
 
     const hashPass = await bcryptjs.hash(this.password, 10);
-    this.password = hashPass
+    this.password = hashPass;
+    return
 })
 
 userSchema.methods.comparePassword = async function(password) {
@@ -49,4 +50,6 @@ userSchema.methods.comparePassword = async function(password) {
     return await bcryptjs.compare(password, this.password)
 }
 
-// const userModel = 
+const userModel = mongoose.model('user', userSchema);
+
+module.exports = userModel;
